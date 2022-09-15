@@ -16,6 +16,10 @@ variable "create_public_subnets" {
   default = true
 }
 
+variable "tags"{
+  description = "Tags to add to all resources created by this module"
+  default = {} 
+}
 # 
 # Assuming we get "10.0.0.0/16" as an input for var.vpc_cidr and we want to divide it into /24 networks
 # we subtract /16 from the /24, and are left with 8 (24 - 16 = 8). This 8 is the second parameter used

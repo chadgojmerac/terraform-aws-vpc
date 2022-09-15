@@ -13,9 +13,10 @@ module "vpc" {
   single_nat_gateway   = false
   enable_dns_hostnames = true
 
-  tags = {
-    "creator"     = "terraform-do-not-manually-delete"
-  }
+  tags = merge(tomap({
+    "creator" = "terraform-do-not-manually-delete"}),
+    var.tags,
+  )
 
   private_subnet_tags = {
     "creator"     = "terraform-do-not-manually-delete"
