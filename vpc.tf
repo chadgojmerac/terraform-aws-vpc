@@ -7,21 +7,19 @@ module "vpc" {
   name                 = var.vpc_name
   cidr                 = var.vpc_cidr
   azs                  = data.aws_availability_zones.available.names
-  private_subnets      = [ local.subnet0_cidr, local.subnet1_cidr, local.subnet2_cidr ]
-  public_subnets       = var.create_public_subnets ? [ local.pub_subnet0_cidr, local.pub_subnet1_cidr, local.pub_subnet2_cidr ] : []
-  enable_nat_gateway   = false
-  single_nat_gateway   = false
+  private_subnets      = local.private_cidrs
+  public_subnets       = var.create_public_subnets ? local.public_cidrs : []
+  database_subnets     = var.create_database_subnets ? local.db_cidrs : []
+  enable_nat_gateway   = true
+  single_nat_gateway   = true
   enable_dns_hostnames = true
+  public_subnet_tags   = var.subnet_tags
+  private_subnet_tags  = var.subnet_tags
 
   tags = merge(tomap({
     "creator" = "terraform-do-not-manually-delete"}),
     var.tags,
   )
-
-  private_subnet_tags = {
-    "creator"     = "terraform-do-not-manually-delete"
-    "scope"       = "private"
-  }
 }
 
 output "vpc"{
@@ -38,4 +36,8 @@ output "private_subnets"{
 
 output "public_subnets"{
   value = module.vpc.public_subnets
+}
+
+output "database_subnets"{
+  value = module.vpc.database_subnets
 }

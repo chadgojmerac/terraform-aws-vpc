@@ -1,24 +1,35 @@
 variable "vpc_name"{
-    default = "test-vpc"
+  type = string
 }
 
 variable "vpc_cidr"{
-    default = "10.12.0.0/24"
+  type = string
 }
 
 variable "region" {
-    type = string
-    default = "us-west-2"
+  type    = string
+  default = "us-west-2"
 }
 
 variable "create_public_subnets" {
-  type = bool
+  type    = bool
+  default = true
+}
+
+variable "create_database_subnets" {
+  type    = bool
   default = true
 }
 
 variable "tags"{
-  description = "Tags to add to all resources created by this module"
-  default = {} 
+  description = "(Optional) tags to add to all resources created by this module"
+  type        = map
+  default     = {} 
+}
+
+variable "subnet_tags"{
+  description = "(Optional) tags to add to all public & private subnets"
+  type        = map
 }
 # 
 # Assuming we get "10.0.0.0/16" as an input for var.vpc_cidr and we want to divide it into /24 networks
@@ -46,15 +57,31 @@ variable "tags"{
 
 locals {
   # the local.subnetX_cidr variables are the subnets resultant from splitting the vpc_cidr var into 4 equal subnets.
-  subnet0_cidr = cidrsubnet(var.vpc_cidr, 2, 0) # 10.63.250.0/25 using default vpc_cidr value on /25 cidr.
-  subnet1_cidr = cidrsubnet(var.vpc_cidr, 2, 1) # 10.63.250.128/25 using default vpc_cidr value
-  subnet2_cidr = cidrsubnet(var.vpc_cidr, 2, 2) # 10.63.251.0/25 using default vpc_cidr value
-  subnet3_cidr = cidrsubnet(var.vpc_cidr, 2, 3) # 10.63.251.128/25 using default vpc_cidr value
+  private_cidr = cidrsubnet(var.vpc_cidr, 1, 0) # First half of var.vpc_cidr
+  public_cidr  = cidrsubnet(var.vpc_cidr, 2, 2) # 3rd quarter of var.vpc_cidr
+  db_cidr      = cidrsubnet(var.vpc_cidr, 2, 3) # 4rd quarter of var.vpc_cidr
 
-  pub_subnet0_cidr = cidrsubnet(local.subnet3_cidr,2, 0)
-  pub_subnet1_cidr = cidrsubnet(local.subnet3_cidr,2, 1)
-  pub_subnet2_cidr = cidrsubnet(local.subnet3_cidr,2, 2)
+  private_cidrs = [
+    cidrsubnet(local.private_cidr, 2, 0),
+    cidrsubnet(local.private_cidr, 2, 1),
+    cidrsubnet(local.private_cidr, 2, 2)
+  ]
+  public_cidrs = [
+    cidrsubnet(local.public_cidr, 2, 0),
+    cidrsubnet(local.public_cidr, 2, 1),
+    cidrsubnet(local.public_cidr, 2, 2)
+  ]
+  db_cidrs = [
+    cidrsubnet(local.db_cidr, 2, 0),
+    cidrsubnet(local.db_cidr, 2, 1),
+    cidrsubnet(local.db_cidr, 2, 2)
+  ]
 }
+
+# Private = half of entire cidr (split into 3, last not used)
+# Public = quarter of entire cidr (split into 3, last not used)
+# DB     = quarter of entire cidr (split into 3, last not used)
+
 
 # /23 - 512 IPs
 #   /25 - 128 IPs per /25
