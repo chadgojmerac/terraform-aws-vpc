@@ -18,27 +18,27 @@ module "vpc" {
   private_subnet_tags  = var.subnet_tags
 
   tags = merge(tomap({
-    "creator" = "terraform-do-not-manually-delete"}),
+    "creator" = "terraform-do-not-manually-delete" }),
     var.tags,
   )
 }
 
-output "vpc"{
+output "vpc" {
   value = module.vpc
 }
 
-output "vpc_id"{
+output "vpc_id" {
   value = module.vpc.vpc_id
 }
 
-output "private_subnets"{
+output "private_subnets" {
   value = module.vpc.private_subnets
 }
 
-output "public_subnets"{
+output "public_subnets" {
   value = module.vpc.public_subnets
 }
 
-output "database_subnets"{
+output "database_subnets" {
   value = module.vpc.database_subnets
 }

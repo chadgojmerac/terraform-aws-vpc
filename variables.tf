@@ -1,9 +1,9 @@
-variable "vpc_name"{
+variable "vpc_name" {
   type = string
 }
 
-variable "vpc_cidr"{
-  type = string
+variable "vpc_cidr" {
+  type    = string
   default = "10.0.0.0/24"
 }
 
@@ -22,15 +22,15 @@ variable "create_database_subnets" {
   default = true
 }
 
-variable "tags"{
+variable "tags" {
   description = "(Optional) tags to add to all resources created by this module"
-  type        = map
-  default     = {} 
+  type        = map(any)
+  default     = {}
 }
 
-variable "subnet_tags"{
+variable "subnet_tags" {
   description = "(Optional) tags to add to all public & private subnets"
-  type        = map
+  type        = map(any)
 }
 # 
 # Assuming we get "10.0.0.0/16" as an input for var.vpc_cidr and we want to divide it into /24 networks
