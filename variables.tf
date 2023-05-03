@@ -4,6 +4,7 @@ variable "vpc_name"{
 
 variable "vpc_cidr"{
   type = string
+  default = "10.0.0.0/24"
 }
 
 variable "region" {
@@ -57,14 +58,18 @@ variable "subnet_tags"{
 
 locals {
   # the local.subnetX_cidr variables are the subnets resultant from splitting the vpc_cidr var into 4 equal subnets.
-  private_cidr = cidrsubnet(var.vpc_cidr, 1, 0) # First half of var.vpc_cidr
-  public_cidr  = cidrsubnet(var.vpc_cidr, 2, 2) # 3rd quarter of var.vpc_cidr
-  db_cidr      = cidrsubnet(var.vpc_cidr, 2, 3) # 4rd quarter of var.vpc_cidr
+  private_cidr = cidrsubnet(var.vpc_cidr, 1, 0) # First half of var.vpc_cidr (/25)
+  public_cidr  = cidrsubnet(var.vpc_cidr, 2, 2) # 3rd quarter of var.vpc_cidr (/26)
+  db_cidr      = cidrsubnet(var.vpc_cidr, 2, 3) # 4rd quarter of var.vpc_cidr (/26)
 
+  intra_cidrs = [
+    cidrsubnet(local.private_cidr, 3, 0), # First half of 2,0 (/27) (/28)
+    cidrsubnet(local.private_cidr, 3, 1), # second half of 2,0 (/27) (/28)
+  ]
   private_cidrs = [
-    cidrsubnet(local.private_cidr, 2, 0),
-    cidrsubnet(local.private_cidr, 2, 1),
-    cidrsubnet(local.private_cidr, 2, 2)
+    cidrsubnet(local.private_cidr, 2, 1), # /27
+    cidrsubnet(local.private_cidr, 2, 2), # /27
+    cidrsubnet(local.private_cidr, 2, 3)  # /27
   ]
   public_cidrs = [
     cidrsubnet(local.public_cidr, 2, 0),
@@ -78,7 +83,7 @@ locals {
   ]
 }
 
-# Private = half of entire cidr (split into 3, last not used)
+# Private = half of entire cidr (split into 4, First used for intra_cidrs)
 # Public = quarter of entire cidr (split into 3, last not used)
 # DB     = quarter of entire cidr (split into 3, last not used)
 

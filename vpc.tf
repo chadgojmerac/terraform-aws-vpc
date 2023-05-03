@@ -7,6 +7,7 @@ module "vpc" {
   name                 = var.vpc_name
   cidr                 = var.vpc_cidr
   azs                  = data.aws_availability_zones.available.names
+  intra_subnets        = local.intra_cidrs
   private_subnets      = local.private_cidrs
   public_subnets       = var.create_public_subnets ? local.public_cidrs : []
   database_subnets     = var.create_database_subnets ? local.db_cidrs : []
